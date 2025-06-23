@@ -95,11 +95,11 @@ export const TokenHighlight: FC<TokenHighlightProps> = ({
           </Typography>
           {isSelectedForProbability && (
             <Typography variant="caption" display="block" gutterBottom sx={{ color: 'primary.main', fontWeight: 'bold' }}>
-              ★ Showing in probability graph
+              📊 Analyzing this token's alternatives
             </Typography>
           )}
           <Typography variant="caption" display="block" gutterBottom>
-            {isSelectedForProbability ? 'Click another token to change view' : 'Click to view probability distribution'}
+            {isSelectedForProbability ? 'Click another token to analyze it instead' : 'Click to analyze alternatives in right panel'}
           </Typography>
           <Typography variant="caption" display="block" gutterBottom>
             Alternative tokens:

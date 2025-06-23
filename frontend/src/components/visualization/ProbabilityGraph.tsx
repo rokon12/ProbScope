@@ -180,10 +180,10 @@ export const ProbabilityGraph: FC<ProbabilityGraphProps> = React.memo(({
       
       {tokenToShow && (
         <Typography variant="body2" align="center" sx={{ mb: 2, color: 'text.secondary', fontStyle: 'italic' }}>
-          {selectedToken ? 'Selected token' : 'Current token'}: <strong>"{tokenToShow.text}"</strong>
+          {selectedToken ? 'Analyzing token' : 'Latest token'}: <strong>"{tokenToShow.text}"</strong>
           {selectedToken && (
-            <Typography variant="caption" display="block" sx={{ color: 'primary.main', mt: 0.5 }}>
-              Click any token to change analysis
+            <Typography variant="caption" display="block" sx={{ color: 'primary.main', mt: 0.5, fontWeight: 'bold' }}>
+              🔵 Blue-bordered token in left panel
             </Typography>
           )}
         </Typography>
