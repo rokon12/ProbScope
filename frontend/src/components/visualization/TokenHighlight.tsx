@@ -37,16 +37,13 @@ export const TokenHighlight: FC<TokenHighlightProps> = ({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 2, scale: 0.98 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: -2, scale: 0.98 }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
       transition={{ 
-        duration: 0.15,
-        type: "spring",
-        stiffness: 400,
-        damping: 35
+        duration: 0.2,
+        ease: "easeInOut"
       }}
-      whileHover={{ scale: 1.01 }}
     >
       <Box
         component="span"
@@ -63,12 +60,11 @@ export const TokenHighlight: FC<TokenHighlightProps> = ({
                          isSelected ? probabilityColor : 'transparent',
           border: `2px solid ${isSelectedForProbability ? selectedForProbabilityColor : probabilityColor}`,
           borderWidth: isSelectedForProbability ? '3px' : '2px',
-          transition: 'all 0.15s ease',
+          transition: 'background-color 0.2s ease, border-color 0.2s ease',
           '&:hover': {
             backgroundColor: isSelectedForProbability ? 
               `rgba(33, 150, 243, ${token.probability * 0.7})` :
               `rgba(76, 175, 80, ${token.probability * 0.5})`,
-            transform: 'scale(1.02)',
           },
         }}
       >

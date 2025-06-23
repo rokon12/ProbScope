@@ -128,8 +128,8 @@ public class TokenGenerationServiceWithLogprobs implements TokenGenerationServic
                     .build());
         }
 
-        // Simulate streaming behaviour
+        // Simulate streaming behaviour with consistent timing
         return Flux.fromIterable(tokenInfos)
-                .delayElements(Duration.ofMillis(150));
+                .delayElements(Duration.ofMillis(250));
     }
 }

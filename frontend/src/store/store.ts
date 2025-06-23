@@ -111,9 +111,9 @@ export const useStore = create<VisualizationStore>((set, get) => ({
           
           // Clear current token after a gentle delay
           const speedDelay = {
-            slow: 500,
-            medium: 250,
-            fast: 150
+            slow: 600,
+            medium: 300,
+            fast: 200
           };
           
           setTimeout(() => {

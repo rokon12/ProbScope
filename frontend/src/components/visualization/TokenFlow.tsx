@@ -3,7 +3,6 @@ import { Box, Paper, CircularProgress, Alert, Typography, Backdrop } from '@mui/
 import { motion, AnimatePresence } from 'framer-motion'
 import { useStore } from '../../store/store'
 import { TokenHighlight } from './TokenHighlight'
-import { CurrentTokenSelection } from './CurrentTokenSelection'
 
 import React from 'react';
 
@@ -11,16 +10,15 @@ export const TokenFlow: FC = React.memo(() => {
   const generatedTokens = useStore((state) => state.generatedTokens);
   const error = useStore((state) => state.error);
   const isLoading = useStore((state) => state.isLoading);
-  const currentToken = useStore((state) => state.currentToken);
   const selectedTokenForProbability = useStore((state) => state.selectedTokenForProbability);
   const setSelectedTokenForProbability = useStore((state) => state.setSelectedTokenForProbability);
 
   return (
     <Box>
-      {/* Show current token selection animation */}
-      {currentToken && (
+      {/* Disabled current token selection animation to reduce jarring */}
+      {/* {currentToken && (
         <CurrentTokenSelection currentToken={currentToken} />
-      )}
+      )} */}
     <Paper 
       elevation={3}
       sx={{
@@ -68,7 +66,7 @@ export const TokenFlow: FC = React.memo(() => {
         filter: (isLoading || error) ? 'blur(1px)' : 'none',
         pointerEvents: (isLoading || error) ? 'none' : 'auto',
       }}>
-        <AnimatePresence>
+        <AnimatePresence mode="sync">
           {generatedTokens && generatedTokens.length > 0 ? (
             generatedTokens.map((token, index) => (
               <TokenHighlight
