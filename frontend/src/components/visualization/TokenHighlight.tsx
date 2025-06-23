@@ -92,7 +92,10 @@ export const TokenHighlight: FC<TokenHighlightProps> = ({
           }}
         >
           <Typography variant="subtitle2" gutterBottom>
-            Probability: {(token.probability * 100).toFixed(1)}%
+            Probability: {token.probability >= 0.001 
+              ? `${(token.probability * 100).toFixed(1)}%`
+              : `${(token.probability * 100).toFixed(3)}%`
+            }
           </Typography>
           {isSelectedForProbability && (
             <Typography variant="caption" display="block" gutterBottom sx={{ color: 'primary.main', fontWeight: 'bold' }}>
@@ -119,7 +122,10 @@ export const TokenHighlight: FC<TokenHighlightProps> = ({
                 {alt.text}
               </Typography>
               <Typography variant="caption" color="text.secondary">
-                {(alt.probability * 100).toFixed(1)}%
+                {alt.probability >= 0.001 
+                  ? `${(alt.probability * 100).toFixed(1)}%`
+                  : `${(alt.probability * 100).toFixed(3)}%`
+                }
               </Typography>
             </Box>
           ))}

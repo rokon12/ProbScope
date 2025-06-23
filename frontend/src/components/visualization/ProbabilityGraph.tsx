@@ -39,6 +39,7 @@ export const ProbabilityGraph: FC<ProbabilityGraphProps> = React.memo(({
     }))
   ].sort((a, b) => b.probability - a.probability).slice(0, 10) : []
 
+
   useEffect(() => {
     if (!svgRef.current || !data.length) return
 
@@ -133,7 +134,10 @@ export const ProbabilityGraph: FC<ProbabilityGraphProps> = React.memo(({
       .attr('fill', d => d.isSelected ? '#fff' : '#ccc')
       .attr('font-weight', d => d.isSelected ? 'bold' : 'normal')
       .attr('font-size', '12px')
-      .text(d => `${(d.probability * 100).toFixed(1)}%`)
+      .text(d => d.probability >= 0.001 
+        ? `${(d.probability * 100).toFixed(1)}%`
+        : `${(d.probability * 100).toFixed(3)}%`
+      )
       .style('opacity', 0)
       .transition()
       .duration(300)
