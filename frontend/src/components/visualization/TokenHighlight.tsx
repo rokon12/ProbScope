@@ -6,11 +6,15 @@ import { TokenInfo, TokenAlternative } from '../../types/types'
 interface TokenHighlightProps {
   token: TokenInfo
   isSelected?: boolean
+  onClick?: (token: TokenInfo) => void
+  isSelectedForProbability?: boolean
 }
 
 export const TokenHighlight: FC<TokenHighlightProps> = ({
   token,
   isSelected = false,
+  onClick,
+  isSelectedForProbability = false,
 }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
 
@@ -22,7 +26,14 @@ export const TokenHighlight: FC<TokenHighlightProps> = ({
     setAnchorEl(null)
   }
 
+  const handleClick = () => {
+    if (onClick) {
+      onClick(token)
+    }
+  }
+
   const probabilityColor = `rgba(76, 175, 80, ${token.probability})`
+  const selectedForProbabilityColor = `rgba(33, 150, 243, ${token.probability})`
 
   return (
     <motion.div
@@ -41,17 +52,22 @@ export const TokenHighlight: FC<TokenHighlightProps> = ({
         component="span"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
+        onClick={handleClick}
         sx={{
           display: 'inline-block',
           padding: '4px 8px',
           margin: '2px',
           borderRadius: '4px',
           cursor: 'pointer',
-          backgroundColor: isSelected ? probabilityColor : 'transparent',
-          border: `2px solid ${probabilityColor}`,
+          backgroundColor: isSelectedForProbability ? selectedForProbabilityColor : 
+                         isSelected ? probabilityColor : 'transparent',
+          border: `2px solid ${isSelectedForProbability ? selectedForProbabilityColor : probabilityColor}`,
+          borderWidth: isSelectedForProbability ? '3px' : '2px',
           transition: 'all 0.2s ease',
           '&:hover': {
-            backgroundColor: `rgba(76, 175, 80, ${token.probability * 0.5})`,
+            backgroundColor: isSelectedForProbability ? 
+              `rgba(33, 150, 243, ${token.probability * 0.7})` :
+              `rgba(76, 175, 80, ${token.probability * 0.5})`,
             transform: 'scale(1.05)',
           },
         }}
@@ -77,6 +93,14 @@ export const TokenHighlight: FC<TokenHighlightProps> = ({
         >
           <Typography variant="subtitle2" gutterBottom>
             Probability: {(token.probability * 100).toFixed(1)}%
+          </Typography>
+          {isSelectedForProbability && (
+            <Typography variant="caption" display="block" gutterBottom sx={{ color: 'primary.main', fontWeight: 'bold' }}>
+              ★ Showing in probability graph
+            </Typography>
+          )}
+          <Typography variant="caption" display="block" gutterBottom>
+            {isSelectedForProbability ? 'Click another token to change view' : 'Click to view probability distribution'}
           </Typography>
           <Typography variant="caption" display="block" gutterBottom>
             Alternative tokens:

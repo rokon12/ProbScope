@@ -6,21 +6,26 @@ import lombok.Data;
 
 import java.util.List;
 
-@Data
-@Builder
+@Data @Builder
 public class OpenAILogprobsRequest {
-    private String model;
-    private List<Message> messages;
-    private double temperature;
-    private boolean logprobs;
-    @JsonProperty("top_logprobs")
-    private int topLogprobs;
-    @JsonProperty("max_tokens")
-    private int maxTokens;
-    private boolean stream;
 
-    @Data
-    @Builder
+    private String model;
+    private Boolean stream;
+    private Boolean logprobs;
+    private Double temperature;
+
+    @JsonProperty("top_p")
+    private Double topP;
+
+    @JsonProperty("top_logprobs")
+    private Integer topLogprobs;
+
+    @JsonProperty("max_tokens")
+    private Integer maxTokens;
+
+    private List<Message> messages;
+
+    @Data @Builder
     public static class Message {
         private String role;
         private String content;

@@ -1,62 +1,121 @@
 package dev.langchain4j.tokenflowvisualizer.service;
 
+import dev.langchain4j.tokenflowvisualizer.config.OpenAIConfig;
 import dev.langchain4j.tokenflowvisualizer.dto.TokenInfo;
-import dev.langchain4j.tokenflowvisualizer.exception.TokenGenerationException;
-import dev.langchain4j.tokenflowvisualizer.exception.TokenGenerationTimeoutException;
+import dev.langchain4j.tokenflowvisualizer.dto.openai.OpenAILogprobsRequest;
+import dev.langchain4j.tokenflowvisualizer.dto.openai.OpenAILogprobsResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Service
 @Profile("logprobs")
-@RequiredArgsConstructor
-public class TokenGenerationServiceWithLogprobs implements TokenGenerationService {
+public class TokenGenerationServiceWithLogprobs implements TokenGenerationService{
 
-    private final OpenAILogprobsService openAILogprobsService;
+    private final OpenAIConfig openAIConfig;
+    private final WebClient webClient;
 
-    @Value("${token.generation.timeout:10}")
-    private long timeoutSeconds;
+    public TokenGenerationServiceWithLogprobs(OpenAIConfig openAIConfig) {
+        this.openAIConfig = openAIConfig;
+        this.webClient = WebClient.builder()
+                .baseUrl("https://api.openai.com/v1")
+                .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + openAIConfig.getApiKey())
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .build();
+    }
 
-    @Override
-    public Flux<TokenInfo> generateTokens(String prompt, double temperature, int topK, double topP) {
-        // Validate input parameters
-        if (prompt == null || prompt.trim().isEmpty()) {
-            log.error("Empty prompt provided");
-            return Flux.error(TokenGenerationException.emptyPrompt());
-        }
-        if (temperature < 0.0 || temperature > 2.0) {
-            log.error("Invalid temperature value: {}", temperature);
-            return Flux.error(TokenGenerationException.invalidTemperature(temperature));
-        }
-        if (topK < 1) {
-            log.error("Invalid topK value: {}", topK);
-            return Flux.error(TokenGenerationException.invalidTopK(topK));
-        }
-        if (topP <= 0.0 || topP > 1.0) {
-            log.error("Invalid topP value: {}", topP);
-            return Flux.error(TokenGenerationException.invalidTopP(topP));
-        }
+    public Flux<TokenInfo> generateTokens(String prompt,
+                                                      double temperature,
+                                                      int topK,
+                                                      double topP) {
 
-        log.info("Generating tokens with real OpenAI logprobs for prompt: {}", prompt);
-        
-        return openAILogprobsService.generateTokensWithLogprobs(prompt, temperature, topK, topP)
-                .timeout(Duration.ofSeconds(timeoutSeconds))
-                .onErrorMap(throwable -> {
-                    if (throwable instanceof TokenGenerationException) {
-                        return throwable;
-                    }
-                    if (throwable instanceof java.util.concurrent.TimeoutException) {
-                        log.error("Token generation timed out after {} seconds", timeoutSeconds);
-                        return TokenGenerationTimeoutException.fromTimeout(timeoutSeconds);
-                    }
-                    log.error("Unexpected error during token generation", throwable);
-                    return new TokenGenerationException("Unexpected error during token generation: " + throwable.getMessage(), throwable);
+        int topLogprobs = Math.max(1, Math.min(topK, 5)); // enforce 1–5 (OpenAI limit)
+        int k = Math.max(1, Math.min(topK, 5));
+        double safeTopP = Math.min(Math.max(topP, 0d), 1d);
+
+        OpenAILogprobsRequest request = OpenAILogprobsRequest.builder()
+                .model(openAIConfig.getModel())
+                .messages(List.of(
+                        OpenAILogprobsRequest.Message.builder()
+                                .role("user")
+                                .content(prompt)
+                                .build()
+                ))
+                .temperature(temperature)
+                .topP(safeTopP)
+                .logprobs(true)
+                .topLogprobs(topLogprobs)
+                .maxTokens(150)
+                .stream(false)
+                .build();
+
+        log.info("Generating tokens with: {}", request);
+
+        return webClient.post()
+                .uri("/chat/completions")
+                .bodyValue(request)
+                .retrieve()
+                .onStatus(HttpStatusCode::isError,
+                        resp -> resp.createException().flatMap(Mono::error))
+                .bodyToMono(OpenAILogprobsResponse.class)
+                .flatMapMany(this::processLogprobsResponse)
+                .log()
+                .onErrorResume(err -> {
+                    log.error("Error calling OpenAI logprobs API", err);
+                    return Flux.error(new IllegalStateException(
+                            "Failed to get logprobs from OpenAI", err));
                 });
+    }
+
+    private Flux<TokenInfo> processLogprobsResponse(OpenAILogprobsResponse response) {
+        if (response.getChoices() == null || response.getChoices().isEmpty()) {
+            return Flux.empty();
+        }
+
+        OpenAILogprobsResponse.Choice choice = response.getChoices().getFirst();
+        if (choice.getLogprobs() == null || choice.getLogprobs().getContent() == null) {
+            return Flux.empty();
+        }
+
+        List<TokenInfo> tokenInfos = new ArrayList<>();
+
+        for (OpenAILogprobsResponse.ContentLogprob cl : choice.getLogprobs().getContent()) {
+            double mainProb = Math.exp(cl.getLogprob());
+
+            List<TokenInfo.TokenAlternative> alternatives = new ArrayList<>();
+            if (cl.getTopLogprobs() != null) {
+                for (OpenAILogprobsResponse.TopLogprob tl : cl.getTopLogprobs()) {
+                    if (!tl.getToken().equals(cl.getToken())) {
+                        alternatives.add(TokenInfo.TokenAlternative.builder()
+                                .text(tl.getToken())
+                                .probability(Math.exp(tl.getLogprob()))
+                                .build());
+                    }
+                }
+            }
+
+            tokenInfos.add(TokenInfo.builder()
+                    .text(cl.getToken())
+                    .probability(mainProb)
+                    .alternatives(alternatives)
+                    .timestamp(System.currentTimeMillis())
+                    .build());
+        }
+
+        // Simulate streaming behaviour
+        return Flux.fromIterable(tokenInfos)
+                .delayElements(Duration.ofMillis(200));
     }
 }

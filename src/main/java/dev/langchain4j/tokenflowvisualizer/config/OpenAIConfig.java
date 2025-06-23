@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 @Data
 public class OpenAIConfig {
     private String apiKey;
-    private String model = "gpt-3.5-turbo";
+    private String model;
     private double temperature = 1.0;
 
     @Bean

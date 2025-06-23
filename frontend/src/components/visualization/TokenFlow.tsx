@@ -12,6 +12,8 @@ export const TokenFlow: FC = React.memo(() => {
   const error = useStore((state) => state.error);
   const isLoading = useStore((state) => state.isLoading);
   const currentToken = useStore((state) => state.currentToken);
+  const selectedTokenForProbability = useStore((state) => state.selectedTokenForProbability);
+  const setSelectedTokenForProbability = useStore((state) => state.setSelectedTokenForProbability);
 
   return (
     <Box>
@@ -73,6 +75,8 @@ export const TokenFlow: FC = React.memo(() => {
                 key={`${token.timestamp}-${index}`}
                 token={token}
                 isSelected={true}
+                onClick={setSelectedTokenForProbability}
+                isSelectedForProbability={selectedTokenForProbability?.timestamp === token.timestamp}
               />
             ))
           ) : null}

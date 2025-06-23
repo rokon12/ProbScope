@@ -11,6 +11,7 @@ interface TokenProbability {
 
 interface ProbabilityGraphProps {
   currentToken: TokenInfo | null
+  selectedToken?: TokenInfo | null
   width?: number
   height?: number
   animated?: boolean
@@ -19,6 +20,7 @@ interface ProbabilityGraphProps {
 
 export const ProbabilityGraph: FC<ProbabilityGraphProps> = React.memo(({
   currentToken,
+  selectedToken,
   width = 500,
   height = 350,
   animated = true,
@@ -26,10 +28,11 @@ export const ProbabilityGraph: FC<ProbabilityGraphProps> = React.memo(({
 }) => {
   const svgRef = useRef<SVGSVGElement>(null)
 
-  // Prepare data: top 10 tokens including the selected one
-  const data: TokenProbability[] = currentToken ? [
-    { text: currentToken.text, probability: currentToken.probability, isSelected: true },
-    ...currentToken.alternatives.slice(0, 9).map(alt => ({ 
+  // Prepare data: Use selectedToken if available, otherwise fallback to currentToken
+  const tokenToShow = selectedToken || currentToken
+  const data: TokenProbability[] = tokenToShow ? [
+    { text: tokenToShow.text, probability: tokenToShow.probability, isSelected: true },
+    ...tokenToShow.alternatives.slice(0, 9).map(alt => ({ 
       text: alt.text, 
       probability: alt.probability, 
       isSelected: false 
@@ -66,7 +69,7 @@ export const ProbabilityGraph: FC<ProbabilityGraphProps> = React.memo(({
     svg.append('g')
       .attr('transform', `translate(0,${innerHeight})`)
       .call(d3.axisBottom(xScale)
-        .tickFormat(d => `${(d * 100).toFixed(0)}%`)
+        .tickFormat(d => `${((d as number) * 100).toFixed(0)}%`)
         .ticks(5))
       .style('color', '#888')
       .style('font-size', '12px')
@@ -171,9 +174,14 @@ export const ProbabilityGraph: FC<ProbabilityGraphProps> = React.memo(({
         Token Probability Distribution
       </Typography>
       
-      {currentToken && (
+      {tokenToShow && (
         <Typography variant="body2" align="center" sx={{ mb: 2, color: 'text.secondary', fontStyle: 'italic' }}>
-          Analyzing alternatives for: <strong>"{currentToken.text}"</strong>
+          {selectedToken ? 'Selected token' : 'Current token'}: <strong>"{tokenToShow.text}"</strong>
+          {selectedToken && (
+            <Typography variant="caption" display="block" sx={{ color: 'primary.main', mt: 0.5 }}>
+              Click any token to change analysis
+            </Typography>
+          )}
         </Typography>
       )}
       

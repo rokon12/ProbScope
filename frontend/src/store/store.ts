@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { 
   VisualizationState, 
   DEFAULT_PARAMS,
+  TokenInfo,
 } from '../types/types'
 import { streamTokens, TokenGenerationRequest, TokenGenerationError } from '../api/tokenApi'
 
@@ -19,6 +20,8 @@ interface VisualizationStore extends VisualizationState {
   retryGeneration: () => void
   currentToken: TokenInfo | null
   setCurrentToken: (token: TokenInfo | null) => void
+  selectedTokenForProbability: TokenInfo | null
+  setSelectedTokenForProbability: (token: TokenInfo | null) => void
 }
 
 export const useStore = create<VisualizationStore>((set, get) => ({
@@ -35,6 +38,7 @@ export const useStore = create<VisualizationStore>((set, get) => ({
   isLoading: false,
   hasTimedOut: false,
   currentToken: null,
+  selectedTokenForProbability: null,
 
   // Store methods
 
@@ -66,6 +70,8 @@ export const useStore = create<VisualizationStore>((set, get) => ({
   },
   
   setCurrentToken: (token) => set({ currentToken: token }),
+
+  setSelectedTokenForProbability: (token) => set({ selectedTokenForProbability: token }),
 
   generateTokens: (): (() => void) | void => {
     const state = get()

@@ -61,7 +61,7 @@ public class OpenAILogprobsService {
             return Flux.empty();
         }
 
-        OpenAILogprobsResponse.Choice choice = response.getChoices().get(0);
+        OpenAILogprobsResponse.Choice choice = response.getChoices().getFirst();
         if (choice.getLogprobs() == null || choice.getLogprobs().getContent() == null) {
             return Flux.empty();
         }

@@ -24,6 +24,7 @@ const App = () => {
     generatedTokens,
     isLoading,
     currentToken,
+    selectedTokenForProbability,
     setPrompt,
     setIsPlaying,
     setSpeed,
@@ -128,6 +129,7 @@ const App = () => {
                 }}>
                   <ProbabilityGraph
                     currentToken={currentToken || (generatedTokens.length > 0 ? generatedTokens[generatedTokens.length - 1] : null)}
+                    selectedToken={selectedTokenForProbability}
                     isLoading={isLoading}
                   />
                 </Box>

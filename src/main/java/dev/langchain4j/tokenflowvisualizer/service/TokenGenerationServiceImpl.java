@@ -64,15 +64,15 @@ public class TokenGenerationServiceImpl implements TokenGenerationService {
                         .build();
 
                 var message = UserMessage.from(prompt);
-                Response<AiMessage> response = model.generate(List.of(message));
+                var response = model.chat(List.of(message));
 
-                if (response == null || response.content() == null || response.content().text() == null) {
+                if (response == null || response.aiMessage().text() == null ) {
                     log.error("Received invalid response from OpenAI");
                     throw new RuntimeException("Invalid response from OpenAI");
                 }
-                log.debug("Received response from OpenAI: {}", response.content().text());
+                log.debug("Received response from OpenAI: {}", response.aiMessage().text());
 
-                String[] tokens = response.content().text().split(" ");
+                String[] tokens = response.aiMessage().text().split(" ");
                 if (tokens.length == 0) {
                     return;
                 }
