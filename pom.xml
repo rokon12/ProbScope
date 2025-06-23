@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>dev.langchain4j</groupId>
-    <artifactId>token-flow-visualizer</artifactId>
+    <artifactId>probescope</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>token-flow-visualizer</name>
-    <description>token-flow-visualizer</description>
+    <name>probescope</name>
+    <description>probescope</description>
     <url/>
     <licenses>
         <license/>

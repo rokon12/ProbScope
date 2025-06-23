@@ -8,6 +8,7 @@ import { TemperatureSlider } from './components/controls/TemperatureSlider'
 import { TopKPControls } from './components/controls/TopKPControls'
 import { PlaybackControls } from './components/controls/PlaybackControls'
 import { LearnMode } from './components/educational/LearnMode'
+import { ExamplePrompts } from './components/ExamplePrompts'
 import { useStore } from './store/store'
 import { useTokenGeneration } from './hooks/useTokenGeneration'
 import { EXAMPLE_PROMPTS } from './types/types'
@@ -72,9 +73,14 @@ const App = () => {
           gap: 3
         }}>
           <Box component="header" sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography variant="h4" component="h1">
-              LLM Token Flow Visualizer
-            </Typography>
+            <Box>
+              <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
+                ProbScope
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, fontStyle: 'italic' }}>
+                Peer inside AI language models
+              </Typography>
+            </Box>
             <Box sx={{ display: 'flex', gap: 2 }}>
               <Button onClick={testStream} variant="outlined" size="small">
                 Test Stream
@@ -113,6 +119,10 @@ const App = () => {
                     />
                   )}
                 </Box>
+                <ExamplePrompts 
+                  onSelectPrompt={setPrompt}
+                  disabled={isLoading}
+                />
               </Grid>
 
               <Grid item xs={12} md={8}>

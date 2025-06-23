@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
 
 @SpringBootApplication
-class TokenFlowVisualizerApplication {
+class ProbeScopeApplication {
 
     static void main(String[] args) {
-        SpringApplication.run(TokenFlowVisualizerApplication, args)
+        SpringApplication.run(ProbeScopeApplication, args)
     }
 
 }

@@ -1,14 +1,15 @@
-# Token Flow Visualizer
+# ProbScope
 
-An interactive visualization tool that demonstrates how Large Language Models generate text token by token in real-time. This educational tool helps users understand the token generation process through visual representations and interactive controls.
+**Peer inside AI language models** - An interactive visualization tool that reveals how Large Language Models complete sentences token by token in real-time. ProbScope shows you the probability distributions and alternative choices at each step, making AI decision-making transparent and educational.
 
 ## Features
 
 ### Core Visualization
-- Real-time token generation visualization using OpenAI's GPT models
-- Probability distribution graph for next tokens
-- Token highlighting with probability scores
-- Smooth animations and transitions
+- **Sentence Completion**: Enter incomplete text, see how AI finishes it
+- **Real-time Streaming**: Watch tokens appear one by one with realistic timing
+- **Probability Distributions**: See the actual alternatives the AI considered
+- **Interactive Analysis**: Click any token to view its probability breakdown
+- **Authentic Data**: Uses OpenAI's logprobs for real model confidence scores
 
 ### Interactive Controls
 - Temperature adjustment (0.1 to 2.0)
@@ -17,10 +18,10 @@ An interactive visualization tool that demonstrates how Large Language Models ge
 - Speed control (slow/medium/fast)
 
 ### Educational Features
-- Learn Mode with step-by-step explanations
-- Interactive tooltips
-- Example prompts
-- Alternative timeline visualization
+- **Clickable Examples**: Pre-built prompts for instant testing
+- **Speed Controls**: Slow down to study each decision carefully
+- **Visual Clarity**: Color-coded tokens show selection vs analysis states
+- **Hover Details**: Detailed probability breakdowns on hover
 
 ## Prerequisites
 
@@ -79,6 +80,10 @@ npm run dev
 ```
 
 The frontend will be available at `http://localhost:3000`
+
+The interface looks like this: 
+
+![screenshot.png](images/screenshot.png)
 
 ## Usage
 

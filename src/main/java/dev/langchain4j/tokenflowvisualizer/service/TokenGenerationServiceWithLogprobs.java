@@ -20,7 +20,6 @@ import java.util.List;
 
 @Slf4j
 @Service
-@Profile("logprobs")
 public class TokenGenerationServiceWithLogprobs implements TokenGenerationService {
 
     private final OpenAIConfig openAIConfig;

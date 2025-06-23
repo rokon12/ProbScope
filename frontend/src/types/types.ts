@@ -72,8 +72,14 @@ export const DEFAULT_PARAMS: TokenGenerationParams = {
 }
 
 export const EXAMPLE_PROMPTS = [
-  "The weather is",
+  "The weather today",
   "Once upon a time",
   "The quick brown fox",
+  "I love to eat", 
   "In the distant future",
+  "She walked into the room and",
+  "The best way to learn",
+  "Technology will",
+  "My favorite place is",
+  "When I was younger",
 ] as const
