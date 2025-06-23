@@ -1,0 +1,63 @@
+:root {
+  --animation-duration: 300ms;
+  --token-highlight-color: rgba(76, 175, 80, 0.2);
+  --token-hover-color: rgba(76, 175, 80, 0.4);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@keyframes tokenFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes probabilityBarGrow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.token-animation {
+  animation: tokenFadeIn var(--animation-duration) ease-out;
+}
+
+.probability-bar-animation {
+  animation: probabilityBarGrow var(--animation-duration) ease-out;
+  transform-origin: left;
+}
+
+.token-highlight {
+  background-color: var(--token-highlight-color);
+  border-radius: 4px;
+  padding: 2px 4px;
+  transition: background-color 0.2s ease;
+}
+
+.token-highlight:hover {
+  background-color: var(--token-hover-color);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  :root {
+    --animation-duration: 200ms;
+  }
+}
