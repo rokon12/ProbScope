@@ -115,7 +115,7 @@ export const ProbabilityGraph: FC<ProbabilityGraphProps> = React.memo(({
       bars
         .attr('width', 0)
         .transition()
-        .duration(300)
+        .duration(150)
         .ease(d3.easeQuadOut)
         .attr('width', d => xScale(d.probability))
     } else {
@@ -140,8 +140,8 @@ export const ProbabilityGraph: FC<ProbabilityGraphProps> = React.memo(({
       )
       .style('opacity', 0)
       .transition()
-      .duration(300)
-      .delay(100)
+      .duration(150)
+      .delay(50)
       .style('opacity', 1)
       
     // Add selected indicator

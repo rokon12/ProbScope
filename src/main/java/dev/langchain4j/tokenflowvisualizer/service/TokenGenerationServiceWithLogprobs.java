@@ -49,6 +49,10 @@ public class TokenGenerationServiceWithLogprobs implements TokenGenerationServic
                 .model(openAIConfig.getModel())
                 .messages(List.of(
                         OpenAILogprobsRequest.Message.builder()
+                                .role("system")  
+                                .content("Continue the given text naturally. Do not repeat or rewrite the beginning.")
+                                .build(),
+                        OpenAILogprobsRequest.Message.builder()
                                 .role("user")
                                 .content(prompt)
                                 .build()
@@ -57,7 +61,7 @@ public class TokenGenerationServiceWithLogprobs implements TokenGenerationServic
                 .topP(safeTopP)
                 .logprobs(true)
                 .topLogprobs(topLogprobs)
-                .maxTokens(150)
+                .maxTokens(25)
                 .stream(false)
                 .build();
 
@@ -116,6 +120,6 @@ public class TokenGenerationServiceWithLogprobs implements TokenGenerationServic
 
         // Simulate streaming behaviour
         return Flux.fromIterable(tokenInfos)
-                .delayElements(Duration.ofMillis(200));
+                .delayElements(Duration.ofMillis(150));
     }
 }
