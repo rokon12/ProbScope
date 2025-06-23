@@ -13,6 +13,7 @@ public class OpenAIConfig {
     private String apiKey;
     private String model;
     private double temperature = 1.0;
+    private int maxTokens;
 
     @Bean
     public OpenAiChatModel openAiChatModel() {

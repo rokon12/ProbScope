@@ -20,8 +20,8 @@ public class OpenAILogprobsRequest {
     @JsonProperty("top_logprobs")
     private Integer topLogprobs;
 
-    @JsonProperty("max_tokens")
-    private Integer maxTokens;
+    @JsonProperty("max_completion_tokens")
+    private Integer maxCompletionTokens;
 
     private List<Message> messages;
 

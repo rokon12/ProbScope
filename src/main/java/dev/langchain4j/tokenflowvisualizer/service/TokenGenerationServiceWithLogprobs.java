@@ -4,7 +4,6 @@ import dev.langchain4j.tokenflowvisualizer.config.OpenAIConfig;
 import dev.langchain4j.tokenflowvisualizer.dto.TokenInfo;
 import dev.langchain4j.tokenflowvisualizer.dto.openai.OpenAILogprobsRequest;
 import dev.langchain4j.tokenflowvisualizer.dto.openai.OpenAILogprobsResponse;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpHeaders;
@@ -22,7 +21,7 @@ import java.util.List;
 @Slf4j
 @Service
 @Profile("logprobs")
-public class TokenGenerationServiceWithLogprobs implements TokenGenerationService{
+public class TokenGenerationServiceWithLogprobs implements TokenGenerationService {
 
     private final OpenAIConfig openAIConfig;
     private final WebClient webClient;
@@ -37,31 +36,36 @@ public class TokenGenerationServiceWithLogprobs implements TokenGenerationServic
     }
 
     public Flux<TokenInfo> generateTokens(String prompt,
-                                                      double temperature,
-                                                      int topK,
-                                                      double topP) {
-
+                                          double temperature,
+                                          int topK,
+                                          double topP) {
         int topLogprobs = Math.max(1, Math.min(topK, 5)); // enforce 1–5 (OpenAI limit)
         int k = Math.max(1, Math.min(topK, 5));
         double safeTopP = Math.min(Math.max(topP, 0d), 1d);
+
+        // Use a clearer instruction format that shows the model what we want
+        String systemPrompt = "Complete the following text by adding words that naturally continue from where it ends. " +
+                "Do not repeat any part of the given text. Only provide the continuation.";
+
+        String userPrompt = "Text to complete: \"" + prompt + "\"\n\nContinuation:";
 
         OpenAILogprobsRequest request = OpenAILogprobsRequest.builder()
                 .model(openAIConfig.getModel())
                 .messages(List.of(
                         OpenAILogprobsRequest.Message.builder()
-                                .role("system")  
-                                .content("Continue the given text naturally. Do not repeat or rewrite the beginning.")
+                                .role("system")
+                                .content(systemPrompt)
                                 .build(),
                         OpenAILogprobsRequest.Message.builder()
                                 .role("user")
-                                .content(prompt)
+                                .content(userPrompt)
                                 .build()
                 ))
                 .temperature(temperature)
                 .topP(safeTopP)
                 .logprobs(true)
                 .topLogprobs(topLogprobs)
-                .maxTokens(25)
+                .maxCompletionTokens(openAIConfig.getMaxTokens())
                 .stream(false)
                 .build();
 
@@ -93,6 +97,12 @@ public class TokenGenerationServiceWithLogprobs implements TokenGenerationServic
             return Flux.empty();
         }
 
+        // Get the full response text for debugging
+        String fullResponse = choice.getMessage().getContent();
+        log.debug("Full response from OpenAI: {}", fullResponse);
+
+        // OpenAI returns only the completion when using the system prompt approach,
+        // so we process all tokens without filtering
         List<TokenInfo> tokenInfos = new ArrayList<>();
 
         for (OpenAILogprobsResponse.ContentLogprob cl : choice.getLogprobs().getContent()) {
