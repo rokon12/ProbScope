@@ -2,6 +2,10 @@
 
 **Peer inside AI language models** - An interactive visualization tool that reveals how Large Language Models complete sentences token by token in real-time. ProbScope shows you the probability distributions and alternative choices at each step, making AI decision-making transparent and educational.
 
+The interface looks like this:
+
+![screenshot.png](images/screenshot.png)
+
 ## Features
 
 ### Core Visualization
@@ -81,9 +85,6 @@ npm run dev
 
 The frontend will be available at `http://localhost:3000`
 
-The interface looks like this: 
-
-![screenshot.png](images/screenshot.png)
 
 ## Usage
 
