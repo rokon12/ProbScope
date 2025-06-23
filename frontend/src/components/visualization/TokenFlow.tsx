@@ -66,11 +66,6 @@ export const TokenFlow: FC = React.memo(() => {
         filter: (isLoading || error) ? 'blur(1px)' : 'none',
         pointerEvents: (isLoading || error) ? 'none' : 'auto',
       }}>
-        {/* Debug: Show token count */}
-        <Typography variant="caption" color="primary" sx={{ display: 'block', mb: 1 }}>
-          Tokens: {generatedTokens?.length || 0}
-        </Typography>
-        
         <AnimatePresence>
           {generatedTokens && generatedTokens.length > 0 ? (
             generatedTokens.map((token, index) => (

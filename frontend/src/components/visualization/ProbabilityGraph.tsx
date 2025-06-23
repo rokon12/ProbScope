@@ -19,8 +19,8 @@ interface ProbabilityGraphProps {
 
 export const ProbabilityGraph: FC<ProbabilityGraphProps> = React.memo(({
   currentToken,
-  width = 600,
-  height = 400,
+  width = 500,
+  height = 350,
   animated = true,
   isLoading = false,
 }) => {
@@ -39,7 +39,7 @@ export const ProbabilityGraph: FC<ProbabilityGraphProps> = React.memo(({
   useEffect(() => {
     if (!svgRef.current || !data.length) return
 
-    const margin = { top: 20, right: 20, bottom: 30, left: 100 }
+    const margin = { top: 20, right: 30, bottom: 40, left: 120 }
     const innerWidth = width - margin.left - margin.right
     const innerHeight = height - margin.top - margin.bottom
 
@@ -54,24 +54,43 @@ export const ProbabilityGraph: FC<ProbabilityGraphProps> = React.memo(({
 
     // Create scales
     const xScale = d3.scaleLinear()
-      .domain([0, d3.max(data, d => d.probability) || 1])
+      .domain([0, 1]) // Always show 0-100% scale
       .range([0, innerWidth])
 
     const yScale = d3.scaleBand()
       .domain(data.map(d => d.text))
       .range([0, innerHeight])
-      .padding(0.1)
+      .padding(0.2)
 
-    // Add X axis
+    // Add X axis with percentage formatting
     svg.append('g')
       .attr('transform', `translate(0,${innerHeight})`)
-      .call(d3.axisBottom(xScale))
-      .style('color', 'white')
+      .call(d3.axisBottom(xScale)
+        .tickFormat(d => `${(d * 100).toFixed(0)}%`)
+        .ticks(5))
+      .style('color', '#888')
+      .style('font-size', '12px')
 
-    // Add Y axis
+    // Add Y axis with styled text
     svg.append('g')
       .call(d3.axisLeft(yScale))
-      .style('color', 'white')
+      .style('color', '#888')
+      .style('font-size', '14px')
+      .selectAll('text')
+      .style('font-family', 'monospace')
+
+    // Add background for bars
+    svg.selectAll('.bar-bg')
+      .data(data)
+      .enter()
+      .append('rect')
+      .attr('class', 'bar-bg')
+      .attr('x', 0)
+      .attr('y', d => yScale(d.text) || 0)
+      .attr('width', innerWidth)
+      .attr('height', yScale.bandwidth())
+      .attr('fill', '#1a1a1a')
+      .attr('opacity', 0.3)
 
     // Add bars
     const bars = svg.selectAll('.bar')
@@ -82,15 +101,18 @@ export const ProbabilityGraph: FC<ProbabilityGraphProps> = React.memo(({
       .attr('y', d => yScale(d.text) || 0)
       .attr('height', yScale.bandwidth())
       .attr('fill', d => d.isSelected ? '#2196F3' : '#4CAF50')
-      .attr('opacity', d => d.isSelected ? 1 : 0.7)
+      .attr('opacity', d => d.isSelected ? 1 : 0.8)
       .attr('stroke', d => d.isSelected ? '#fff' : 'none')
       .attr('stroke-width', d => d.isSelected ? 2 : 0)
+      .attr('rx', 4)
+      .attr('ry', 4)
 
     if (animated) {
       bars
         .attr('width', 0)
         .transition()
-        .duration(600)
+        .duration(300)
+        .ease(d3.easeQuadOut)
         .attr('width', d => xScale(d.probability))
     } else {
       bars.attr('width', d => xScale(d.probability))
@@ -105,12 +127,28 @@ export const ProbabilityGraph: FC<ProbabilityGraphProps> = React.memo(({
       .attr('x', d => xScale(d.probability) + 5)
       .attr('y', d => (yScale(d.text) || 0) + yScale.bandwidth() / 2)
       .attr('dy', '0.35em')
-      .attr('fill', 'white')
-      .text(d => d.probability.toFixed(3))
+      .attr('fill', d => d.isSelected ? '#fff' : '#ccc')
+      .attr('font-weight', d => d.isSelected ? 'bold' : 'normal')
+      .attr('font-size', '12px')
+      .text(d => `${(d.probability * 100).toFixed(1)}%`)
       .style('opacity', 0)
       .transition()
-      .duration(600)
+      .duration(300)
+      .delay(100)
       .style('opacity', 1)
+      
+    // Add selected indicator
+    svg.selectAll('.selected-indicator')
+      .data(data.filter(d => d.isSelected))
+      .enter()
+      .append('text')
+      .attr('x', 5)
+      .attr('y', d => (yScale(d.text) || 0) + yScale.bandwidth() / 2)
+      .attr('dy', '0.35em')
+      .attr('fill', '#2196F3')
+      .attr('font-size', '16px')
+      .attr('font-weight', 'bold')
+      .text('▶')
 
   }, [data, width, height, animated])
 
@@ -120,36 +158,51 @@ export const ProbabilityGraph: FC<ProbabilityGraphProps> = React.memo(({
       sx={{ 
         width: '100%',
         height: 'auto',
-        minHeight: height + 50,
+        minHeight: height + 80,
         overflow: 'hidden',
         bgcolor: 'background.paper',
         borderRadius: 2,
         p: 2,
+        display: 'flex',
+        flexDirection: 'column',
       }}
     >
-      <Typography variant="h6" gutterBottom align="center">
+      <Typography variant="h6" gutterBottom align="center" sx={{ mb: 2, color: 'text.primary' }}>
         Token Probability Distribution
       </Typography>
+      
+      {currentToken && (
+        <Typography variant="body2" align="center" sx={{ mb: 2, color: 'text.secondary', fontStyle: 'italic' }}>
+          Analyzing alternatives for: <strong>"{currentToken.text}"</strong>
+        </Typography>
+      )}
+      
       <Box sx={{
+        flex: 1,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
       }}>
-      {isLoading ? (
-        <Box sx={{ textAlign: 'center' }}>
-          <CircularProgress size={40} sx={{ mb: 2 }} />
-          <Typography variant="body2" color="text.secondary">
-            Calculating probabilities...
-          </Typography>
-        </Box>
-      ) : data.length === 0 ? (
-        <Typography variant="body2" color="text.secondary">
-          No probability data available
-        </Typography>
-      ) : (
-        <svg ref={svgRef} style={{ maxWidth: '100%' }} />
-      )}
+        {isLoading ? (
+          <Box sx={{ textAlign: 'center' }}>
+            <CircularProgress size={40} sx={{ mb: 2 }} />
+            <Typography variant="body2" color="text.secondary">
+              Calculating probabilities...
+            </Typography>
+          </Box>
+        ) : data.length === 0 ? (
+          <Box sx={{ textAlign: 'center', py: 4 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+              No probability data available
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              Click play to see token alternatives
+            </Typography>
+          </Box>
+        ) : (
+          <svg ref={svgRef} style={{ maxWidth: '100%', height: height }} />
+        )}
       </Box>
     </Paper>
   )

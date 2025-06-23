@@ -26,16 +26,16 @@ export const TokenHighlight: FC<TokenHighlightProps> = ({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20, scale: 0.8 }}
+      initial={{ opacity: 0, y: 10, scale: 0.9 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: -10, scale: 0.8 }}
+      exit={{ opacity: 0, y: -5, scale: 0.9 }}
       transition={{ 
-        duration: 0.5,
+        duration: 0.3,
         type: "spring",
-        stiffness: 200,
-        damping: 20
+        stiffness: 300,
+        damping: 25
       }}
-      whileHover={{ scale: 1.05 }}
+      whileHover={{ scale: 1.02 }}
     >
       <Box
         component="span"

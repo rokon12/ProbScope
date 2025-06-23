@@ -11,7 +11,6 @@ import { LearnMode } from './components/educational/LearnMode'
 import { useStore } from './store/store'
 import { useTokenGeneration } from './hooks/useTokenGeneration'
 import { EXAMPLE_PROMPTS } from './types/types'
-import { DebugPanel } from './components/DebugPanel'
 
 const App = () => {
   const [highlightedElement, setHighlightedElement] = useState<string | null>(null)
@@ -85,7 +84,6 @@ const App = () => {
 
           <Box component="main" sx={{ flex: 1 }}>
             <ErrorDisplay />
-            <DebugPanel />
             <Grid container spacing={3}>
               <Grid item xs={12}>
                 <Box sx={{ position: 'relative' }}>
@@ -129,7 +127,7 @@ const App = () => {
                   bgcolor: highlightedElement === 'probability-graph' ? 'action.selected' : 'transparent',
                 }}>
                   <ProbabilityGraph
-                    currentToken={currentToken}
+                    currentToken={currentToken || (generatedTokens.length > 0 ? generatedTokens[generatedTokens.length - 1] : null)}
                     isLoading={isLoading}
                   />
                 </Box>
